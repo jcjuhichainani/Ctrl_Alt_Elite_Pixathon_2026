@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CIVITAS // CORE-OS 2076 — Sovereign Verification</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #05070c;
+            color: #d1d5db;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            overflow: hidden;
+        }
+        .font-orbitron {
+            font-family: 'Orbitron', sans-serif;
+        }
+        .bg-grid {
+            background-size: 32px 32px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        }
+        .cyber-border {
+            border: 1px solid rgba(56, 189, 248, 0.18);
+            position: relative;
+        }
+        .cyber-border::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: -1px;
+            width: 8px; height: 8px;
+            border-top: 2px solid #38bdf8;
+            border-left: 2px solid #38bdf8;
+        }
+        .cyber-border::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; right: -1px;
+            width: 8px; height: 8px;
+            border-bottom: 2px solid #38bdf8;
+            border-right: 2px solid #38bdf8;
+        }
+        .glow-title {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.2), 0 0 40px rgba(56, 189, 248, 0.2);
+        }
+        .glow-amber {
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.6);
+        }
+        .glow-cyan {
+            text-shadow: 0 0 12px rgba(6, 182, 212, 0.6);
+        }
+        .glow-rose {
+            text-shadow: 0 0 12px rgba(244, 63, 94, 0.6);
+        }
+    </style>
+</head>
+<body class="bg-grid h-screen w-screen flex flex-col justify-between items-center p-3 md:p-6 overflow-hidden">
+
+    <!-- Top System Nav Header -->
+    <header class="w-full max-w-5xl flex justify-between items-center text-[10px] md:text-xs font-mono text-slate-400 border-b border-slate-800/80 pb-2.5 z-20">
+        <div class="flex items-center gap-3">
+            <span class="text-slate-100 font-bold tracking-wider font-orbitron flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span> CIVITAS // CORE-OS 2076
+            </span>
+            <span class="text-slate-600 hidden sm:inline">|</span>
+            <span class="text-slate-500 hidden sm:inline font-mono">KYBER-8841-OMEGA</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-emerald-400 font-mono hidden sm:inline flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> NODE ALPHA-01 ONLINE
+            </span>
+            <span class="text-amber-400/90 font-mono"><i class="fa-solid fa-bolt text-[9px] mr-1"></i>LATENCY 0.02MS</span>
+        </div>
+    </header>
+
+    <!-- Canvas Container Frame -->
+    <main class="relative w-full max-w-5xl flex-1 my-2 md:my-3 flex flex-col justify-center items-center">
+        <div id="canvasWrapper" class="relative w-full h-full max-h-[620px] bg-slate-950/90 rounded-2xl cyber-border overflow-hidden flex items-center justify-center shadow-2xl">
+            
+            <!-- Main Rendering Canvas -->
+            <canvas id="captchaCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+            <!-- 1. START INTRO OVERLAY -->
+            <div id="introOverlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30 transition-all duration-300">
+                <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-400 px-3 py-1 rounded-full text-[11px] font-mono tracking-widest mb-6">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
+                    SOVEREIGN VERIFICATION REQUISITION
+                </div>
+
+                <h1 class="font-orbitron text-3xl sm:text-4xl md:text-5xl font-black tracking-wider text-white glow-title mb-4 uppercase">
+                    PROVE YOU HAVE <br><span class="bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-300 bg-clip-text text-transparent">A SOUL.</span>
+                </h1>
+
+                <p class="text-slate-400 text-xs sm:text-sm max-w-lg leading-relaxed mb-8">
+                    Year 2076. Synthetic minds have overrun the consensus lattice. <br class="hidden sm:inline">
+                    To cast a sovereign vote, biological consciousness must be verified.<br>
+                    <span class="text-amber-300 font-semibold">Prove your human presence.</span>
+                </p>
+
+                <button id="startVerificationBtn" class="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-orbitron font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-indigo-500/25 transition-all transform active:scale-95 flex items-center gap-3 text-sm tracking-widest">
+                    <span>PROVE YOUR SOUL</span> <i class="fa-solid fa-arrow-right text-xs"></i>
+                </button>
+
+                <!-- Bottom Metrics Preview -->
+                <div class="grid grid-cols-3 gap-3 md:gap-8 max-w-md w-full mt-10 pt-6 border-t border-slate-800/80 text-center font-mono">
+                    <div>
+                        <div class="text-[10px] text-slate-500 tracking-wider uppercase">SYNTHETIC NOISE</div>
+                        <div class="text-xs sm:text-sm font-bold text-slate-300 mt-0.5">99.75% CLUSTER</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 tracking-wider uppercase">QUANTUM LATTICE</div>
+                        <div class="text-xs sm:text-sm font-bold text-cyan-400 mt-0.5">KYBER-1024</div>
+                    </div>
+                    <div>
+                        <div class="text-[10px] text-slate-500 tracking-wider uppercase">ORGANIC ACCREDITATION</div>
+                        <div class="text-xs sm:text-sm font-bold text-amber-400 mt-0.5">PENDING AUDIT</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. STAGE 1 / STAGE 2 HUD BADGES -->
+            <div id="stageHud" class="absolute top-4 left-4 right-4 flex justify-between items-center pointer-events-none z-10 hidden">
+                <div class="bg-slate-900/90 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg text-xs font-mono text-slate-300 flex items-center gap-2">
+                    <span id="stageIndicatorDot" class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+                    <span id="stageGuideText">Stage 1: Trace the shape boundary</span>
+                </div>
+
+                <div id="timerBadge" class="bg-slate-900/90 backdrop-blur border border-amber-500/40 px-3 py-1.5 rounded-lg text-xs font-mono text-amber-400 flex items-center gap-2">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="timerText" class="font-bold">30.0s</span>
+                </div>
+            </div>
+
+            <!-- Controls overlay text -->
+            <div id="controlsBadge" class="absolute bottom-3 right-3 bg-slate-900/80 backdrop-blur border border-slate-800 px-3 py-1.5 rounded-lg text-[11px] text-slate-400 hidden sm:flex items-center gap-2 pointer-events-none z-10 hidden">
+                <span id="kbHelpStage1"><kbd class="bg-slate-800 border border-slate-600 px-1 rounded text-slate-200">Mouse/Touch</kbd> Trace boundary</span>
+                <span id="kbHelpStage2" class="hidden"><kbd class="bg-slate-800 border border-slate-600 px-1 rounded text-slate-200">Drag Canvas</kbd> or <kbd class="bg-slate-800 border border-slate-600 px-1 rounded text-slate-200">← / →</kbd> Rotate shape to align red sector</span>
+            </div>
+
+            <!-- 3. VERIFICATION SUCCESS SCREEN ("YOU ARE SOULFUL") -->
+            <div id="successOverlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30 transition-all duration-300 opacity-0 pointer-events-none">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex items-center justify-center text-amber-400 text-2xl mb-4 shadow-lg shadow-amber-500/10">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+
+                <div class="inline-flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 text-amber-300 px-3 py-1 rounded-full text-[11px] font-mono tracking-wider mb-3">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                    ORGANIC ATTRIBUTIONS AFFIRMED
+                </div>
+
+                <div class="text-xs text-slate-500 font-mono uppercase tracking-widest mb-1">BIOLOGICAL ESSENCE RESOLUTION</div>
+
+                <h2 class="font-orbitron text-3xl sm:text-5xl font-black text-white tracking-wider mb-4 uppercase">
+                    YOU ARE <span class="bg-gradient-to-r from-amber-200 via-amber-400 to-orange-400 bg-clip-text text-transparent">SOULFUL</span>
+                </h2>
+
+                <p class="text-slate-400 text-xs sm:text-sm max-w-md leading-relaxed mb-6">
+                    Consciousness resonance index: <span class="text-cyan-400 font-bold">1.000</span> // Inherent biological sovereignty recognized across all galactic nodes.
+                </p>
+
+                <div class="bg-slate-900/90 border border-slate-800 rounded-lg px-4 py-2 font-mono text-[11px] text-amber-400/90 flex items-center gap-2 mb-8">
+                    <i class="fa-solid fa-lock text-slate-500"></i>
+                    <span>0x841::EB41::CC92 // KYBER-1024 QUANTUM PROOF</span>
+                </div>
+
+                <!-- Requirement 1: Removed "Claim Citizen Credential". Kept ONLY Export Verification and Re-Test -->
+                <div class="flex flex-wrap justify-center gap-3">
+                    <button id="exportVerificationBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-orbitron font-bold px-5 py-3 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-95">
+                        <i class="fa-solid fa-download"></i> EXPORT VERIFICATION
+                    </button>
+                    <button id="retestBtn" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 font-orbitron font-bold px-5 py-3 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-95">
+                        <i class="fa-solid fa-rotate-right"></i> RE-TEST
+                    </button>
+                </div>
+            </div>
+
+            <!-- 4. FAILURE OVERLAY -->
+            <div id="failureOverlay" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-30 transition-all duration-300 opacity-0 pointer-events-none">
+                <div class="w-16 h-16 rounded-2xl bg-rose-500/10 border border-rose-500/40 flex items-center justify-center text-rose-400 text-2xl mb-4">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <h2 id="failureTitle" class="font-orbitron text-2xl font-bold text-rose-400 mb-2">VERIFICATION FAILED</h2>
+                <p id="failureSubtitle" class="text-slate-400 text-xs sm:text-sm max-w-md mb-6 leading-relaxed"></p>
+                <button id="retryBtn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-orbitron font-bold px-6 py-3 rounded-xl text-xs flex items-center gap-2 transition-all active:scale-95">
+                    <i class="fa-solid fa-rotate-right"></i> TRY AGAIN
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Bottom Status Dashboard -->
+    <footer class="w-full max-w-5xl flex flex-col sm:flex-row justify-between items-center text-[11px] font-mono text-slate-500 border-t border-slate-800/80 pt-2.5 gap-2 z-20">
+        <div>
+            Developed by <span class="text-slate-200 font-bold font-orbitron">"Ctrl Alt Elite"</span> 
+            <span class="text-slate-600 text-[10px] ml-1">(Juhi, Pushkar, Shreya, Aarya)</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <span>CIVITAS CORE 2076</span>
+            <span class="text-slate-600">|</span>
+            <span class="text-slate-400">PROTOCOL 1.09</span>
+            <span class="text-slate-600">|</span>
+            <span class="text-emerald-500 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> SECURE CONDUIT</span>
+        </div>
+    </footer>
+
+    <script>
+        (function() {
+            // DOM Elements
+            const canvas = document.getElementById('captchaCanvas');
+            const ctx = canvas.getContext('2d');
+            const wrapper = document.getElementById('canvasWrapper');
+
+            // Overlays
+            const introOverlay = document.getElementById('introOverlay');
+            const successOverlay = document.getElementById('successOverlay');
+            const failureOverlay = document.getElementById('failureOverlay');
+            const failureTitle = document.getElementById('failureTitle');
+            const failureSubtitle = document.getElementById('failureSubtitle');
+
+            // HUD
+            const stageHud = document.getElementById('stageHud');
+            const stageGuideText = document.getElementById('stageGuideText');
+            const timerBadge = document.getElementById('timerBadge');
+            const timerText = document.getElementById('timerText');
+            const controlsBadge = document.getElementById('controlsBadge');
+            const kbHelpStage1 = document.getElementById('kbHelpStage1');
+            const kbHelpStage2 = document.getElementById('kbHelpStage2');
+
+            // Buttons
+            const startVerificationBtn = document.getElementById('startVerificationBtn');
+            const exportVerificationBtn = document.getElementById('exportVerificationBtn');
+            const retestBtn = document.getElementById('retestBtn');
+            const retryBtn = document.getElementById('retryBtn');
+
+            // Game State Constants
+            const SHAPE_TYPES = ['Circle', 'Ellipse', 'Oval', 'Squircle'];
+            const TARGET_ARC_SPAN = Math.PI * 0.35; // Size of integrated red sector arc
+
+            // Dynamic State
+            let stage = 0; // 0: Intro, 1: Shape Trace, 2: Bouncing Dynamic Container, 3: Success, 4: Failed
+            let canvasCenter = { x: 0, y: 0 };
+            let minScreenDim = 0;
+
+            // Target Shape parameters (60% - 70% screen size)
+            let currentShapeType = 'Circle';
+            let targetScalePct = 0.65;
+            let baseRadiusPx = 0;
+            let shapeParams = { scaleX: 1, scaleY: 1 };
+
+            // Stage 1 Tracing
+            let isDrawing = false;
+            let userPoints = [];
+            let humanityScore = 0;
+            let avgRadiusFit = 0;
+            let stage1StartTime = 0;
+            let stage1TimerInterval = null;
+            let timeLeft = 30.0;
+
+            // Stage 2 Rotating Dynamic Container Physics
+            let containerRotationAngle = 0;
+            let isRotatingContainer = false;
+            let lastMouseAngle = 0;
+            let targetArcCenterAngle = 0; // Local angle on shape perimeter for integrated red container
+
+            // Ball Physics
+            let ball = {
+                x: 0, y: 0,
+                vx: 0, vy: 0,
+                speed: 6.2, // Fast bouncing speed
+                radius: 11
+            };
+            let bounceCount = 0;
+            const requiredBounces = 5;
+            let particles = [];
+            let keys = {};
+
+            function init() {
+                resizeCanvas();
+                window.addEventListener('resize', resizeCanvas);
+                setupInputEvents();
+                requestAnimationFrame(gameLoop);
+            }
+
+            function resizeCanvas() {
+                const rect = wrapper.getBoundingClientRect();
+                canvas.width = rect.width * window.devicePixelRatio;
+                canvas.height = rect.height * window.devicePixelRatio;
+                ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+                canvasCenter = { x: rect.width / 2, y: rect.height / 2 };
+                minScreenDim = Math.min(rect.width, rect.height);
+                baseRadiusPx = (minScreenDim * targetScalePct) / 2;
+
+                if (stage === 2) {
+                    resetBallPosition();
+                }
+            }
+
+            function startNewSession() {
+                stage = 1;
+                introOverlay.classList.add('opacity-0', 'pointer-events-none');
+                successOverlay.classList.add('opacity-0', 'pointer-events-none');
+                failureOverlay.classList.add('opacity-0', 'pointer-events-none');
+
+                stageHud.classList.remove('hidden');
+                controlsBadge.classList.remove('hidden');
+                kbHelpStage1.classList.remove('hidden');
+                kbHelpStage2.classList.add('hidden');
+
+                // 1. Uniform random shape selection
+                currentShapeType = SHAPE_TYPES[Math.floor(Math.random() * SHAPE_TYPES.length)];
+
+                // 2. Random size between 60% and 70%
+                targetScalePct = 0.60 + Math.random() * 0.10;
+                baseRadiusPx = (minScreenDim * targetScalePct) / 2;
+
+                if (currentShapeType === 'Ellipse') {
+                    shapeParams.scaleX = 1.25;
+                    shapeParams.scaleY = 0.80;
+                } else if (currentShapeType === 'Oval') {
+                    shapeParams.scaleX = 0.80;
+                    shapeParams.scaleY = 1.25;
+                } else if (currentShapeType === 'Squircle') {
+                    shapeParams.scaleX = 1.05;
+                    shapeParams.scaleY = 1.05;
+                } else {
+                    shapeParams.scaleX = 1.0;
+                    shapeParams.scaleY = 1.0;
+                }
+
+                // Stage 1 Tracing reset
+                userPoints = [];
+                humanityScore = 0;
+                avgRadiusFit = 0;
+                isDrawing = false;
+
+                // 30 Seconds Stage 1 Timer
+                timeLeft = 30.0;
+                stage1StartTime = performance.now();
+                if (stage1TimerInterval) clearInterval(stage1TimerInterval);
+                stage1TimerInterval = setInterval(updateStage1Timer, 100);
+
+                // Stage 2 Setup: Random position for integrated red sector
+                targetArcCenterAngle = Math.random() * Math.PI * 2;
+                containerRotationAngle = 0;
+                bounceCount = 0;
+                particles = [];
+
+                stageGuideText.textContent = `Stage 1: Trace the boundary of the ${currentShapeType} (${Math.round(targetScalePct*100)}% Scale)`;
+            }
+
+            function updateStage1Timer() {
+                if (stage !== 1) {
+                    clearInterval(stage1TimerInterval);
+                    return;
+                }
+                const elapsed = (performance.now() - stage1StartTime) / 1000;
+                timeLeft = Math.max(0, 30.0 - elapsed);
+                timerText.textContent = timeLeft.toFixed(1) + 's';
+
+                if (timeLeft <= 0) {
+                    clearInterval(stage1TimerInterval);
+                    showFailure('TIMEOUT EXCEEDED', 'You did not complete the shape trace within 30 seconds. Biological response must be prompt.');
+                }
+            }
+
+            function resetBallPosition() {
+                ball.x = canvasCenter.x;
+                ball.y = canvasCenter.y;
+                
+                // Random bounce trajectory vector fixed for session
+                const bounceAngle = Math.random() * Math.PI * 2;
+                ball.vx = Math.cos(bounceAngle) * ball.speed;
+                ball.vy = Math.sin(bounceAngle) * ball.speed;
+            }
+
+            // Get local radial distance of active shape at a given angle
+            function getShapeRadiusAtAngle(angle) {
+                if (currentShapeType === 'Squircle') {
+                    const n = 4;
+                    const cosA = Math.cos(angle);
+                    const sinA = Math.sin(angle);
+                    return baseRadiusPx * Math.pow(Math.abs(cosA)**n + Math.abs(sinA)**n, -1/n);
+                }
+                // Ellipse, Oval, Circle
+                const rx = baseRadiusPx * shapeParams.scaleX;
+                const ry = baseRadiusPx * shapeParams.scaleY;
+                return (rx * ry) / Math.sqrt((ry * Math.cos(angle))**2 + (rx * Math.sin(angle))**2);
+            }
+
+            function setupInputEvents() {
+                const getCoords = (e) => {
+                    const rect = canvas.getBoundingClientRect();
+                    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                    return { x: clientX - rect.left, y: clientY - rect.top };
+                };
+
+                const startAction = (e) => {
+                    if (stage !== 1 && stage !== 2) return;
+                    const pos = getCoords(e);
+
+                    if (stage === 1) {
+                        isDrawing = true;
+                        userPoints = [{ x: pos.x, y: pos.y, t: performance.now() }];
+                    } else if (stage === 2) {
+                        isRotatingContainer = true;
+                        lastMouseAngle = Math.atan2(pos.y - canvasCenter.y, pos.x - canvasCenter.x);
+                    }
+                };
+
+                const moveAction = (e) => {
+                    const pos = getCoords(e);
+
+                    if (stage === 1 && isDrawing) {
+                        const lastPoint = userPoints[userPoints.length - 1];
+                        if (!lastPoint || Math.hypot(pos.x - lastPoint.x, pos.y - lastPoint.y) > 3) {
+                            userPoints.push({ x: pos.x, y: pos.y, t: performance.now() });
+                            analyzeBiometrics();
+                        }
+                    } else if (stage === 2 && isRotatingContainer) {
+                        const currentMouseAngle = Math.atan2(pos.y - canvasCenter.y, pos.x - canvasCenter.x);
+                        let angleDiff = currentMouseAngle - lastMouseAngle;
+
+                        if (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                        if (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+
+                        containerRotationAngle += angleDiff;
+                        lastMouseAngle = currentMouseAngle;
+                    }
+                };
+
+                const endAction = () => {
+                    if (stage === 1 && isDrawing) {
+                        isDrawing = false;
+                        evaluateStage1();
+                    } else if (stage === 2) {
+                        isRotatingContainer = false;
+                    }
+                };
+
+                canvas.addEventListener('mousedown', startAction);
+                canvas.addEventListener('mousemove', moveAction);
+                window.addEventListener('mouseup', endAction);
+
+                canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startAction(e); }, { passive: false });
+                canvas.addEventListener('touchmove', (e) => { e.preventDefault(); moveAction(e); }, { passive: false });
+                window.addEventListener('touchend', endAction);
+
+                window.addEventListener('keydown', (e) => { keys[e.key] = true; });
+                window.addEventListener('keyup', (e) => { keys[e.key] = false; });
+
+                startVerificationBtn.addEventListener('click', startNewSession);
+                retestBtn.addEventListener('click', startNewSession);
+                retryBtn.addEventListener('click', startNewSession);
+
+                exportVerificationBtn.addEventListener('click', () => {
+                    const text = "CIVITAS // CORE-OS 2076 VERIFICATION PASSED\nToken: 0x841::EB41::CC92\nResonance: 1.000 (SOULFUL)\nTeam: Ctrl Alt Elite";
+                    navigator.clipboard.writeText(text);
+                    alert("Verification credential copied to clipboard!");
+                });
+            }
+
+            function handleKeyboardControls() {
+                if (stage === 2) {
+                    const rotSpeed = 0.05;
+                    if (keys['ArrowLeft'] || keys['a']) containerRotationAngle -= rotSpeed;
+                    if (keys['ArrowRight'] || keys['d']) containerRotationAngle += rotSpeed;
+                }
+            }
+
+            function analyzeBiometrics() {
+                if (userPoints.length < 8) return;
+
+                let speeds = [];
+                let jitters = [];
+                let pointsInBand = 0;
+
+                for (let i = 1; i < userPoints.length; i++) {
+                    const p1 = userPoints[i - 1];
+                    const p2 = userPoints[i];
+
+                    const dist = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+                    const dt = Math.max((p2.t - p1.t) / 1000, 0.001);
+                    speeds.push(dist / dt);
+
+                    const angle = Math.atan2(p2.y - canvasCenter.y, p2.x - canvasCenter.x);
+                    const targetR = getShapeRadiusAtAngle(angle);
+                    const actualR = Math.hypot(p2.x - canvasCenter.x, p2.y - canvasCenter.y);
+
+                    if (Math.abs(actualR - targetR) <= targetR * 0.20) {
+                        pointsInBand++;
+                    }
+
+                    if (i > 2) {
+                        const p0 = userPoints[i - 2];
+                        const lineDev = Math.abs((p2.y - p0.y)*p1.x - (p2.x - p0.x)*p1.y + p2.x*p0.y - p2.y*p0.x) / 
+                                        (Math.hypot(p2.y - p0.y, p2.x - p0.x) || 1);
+                        jitters.push(lineDev);
+                    }
+                }
+
+                avgRadiusFit = Math.round((pointsInBand / userPoints.length) * 100);
+                const avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
+                const speedVar = Math.sqrt(speeds.reduce((a, b) => a + Math.pow(b - avgSpeed, 2), 0) / speeds.length) / (avgSpeed || 1);
+                const avgJitter = jitters.length > 0 ? (jitters.reduce((a, b) => a + b, 0) / jitters.length) : 0;
+
+                let jitterScore = Math.min(avgJitter * 22, 40);
+                let speedScore = Math.min(speedVar * 35, 30);
+                let fitScore = (avgRadiusFit / 100) * 30;
+
+                let botPenalty = (speedVar < 0.02 || avgJitter < 0.01) ? 0.2 : 1.0;
+                humanityScore = Math.min(Math.round((jitterScore + speedScore + fitScore) * botPenalty), 99);
+            }
+
+            function evaluateStage1() {
+                if (userPoints.length < 12) {
+                    showFailure('TRACE TOO SHORT', 'Draw a complete trace around the target shape boundary.');
+                    return;
+                }
+
+                const startP = userPoints[0];
+                const endP = userPoints[userPoints.length - 1];
+                const endGap = Math.hypot(endP.x - startP.x, endP.y - startP.y);
+
+                if (endGap > baseRadiusPx * 0.75) {
+                    showFailure('INCOMPLETE LOOP', 'Please close your loop trace cleanly back to the starting point.');
+                    return;
+                }
+
+                if (humanityScore >= 35 && avgRadiusFit >= 35) {
+                    // Transition to Stage 2
+                    stage = 2;
+                    if (stage1TimerInterval) clearInterval(stage1TimerInterval);
+                    timerBadge.classList.add('hidden');
+
+                    resetBallPosition();
+
+                    stageGuideText.textContent = `Stage 2: Rotate shape to catch bouncing ball in the integrated red sector (0/${requiredBounces})`;
+                    kbHelpStage1.classList.add('hidden');
+                    kbHelpStage2.classList.remove('hidden');
+                } else {
+                    showFailure('ORGANIC RESIDUAL LOW', `Tracing motion score (${humanityScore}%) was too geometric or linear. Trace naturally with organic human movement.`);
+                }
+            }
+
+            // Stage 2 Physics: Ball bounces between Center Point and Outer Shape Rim (with integrated red sector)
+            function updateStage2Physics() {
+                if (stage !== 2) return;
+
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+                const dx = ball.x - canvasCenter.x;
+                const dy = ball.y - canvasCenter.y;
+                const distFromCenter = Math.hypot(dx, dy);
+
+                const currentAngle = Math.atan2(dy, dx);
+                // Get local shape boundary distance along collision trajectory vector
+                const shapeRadiusAtAngle = getShapeRadiusAtAngle(currentAngle);
+                const maxAllowedDist = shapeRadiusAtAngle - ball.radius;
+
+                if (distFromCenter >= maxAllowedDist) {
+                    // Reposition ball on boundary
+                    const nx = dx / (distFromCenter || 1);
+                    const ny = dy / (distFromCenter || 1);
+
+                    ball.x = canvasCenter.x + nx * maxAllowedDist;
+                    ball.y = canvasCenter.y + ny * maxAllowedDist;
+
+                    // Reverse velocity back to center point
+                    ball.vx = -nx * ball.speed;
+                    ball.vy = -ny * ball.speed;
+
+                    // Convert world collision angle to shape's local coordinate system
+                    let worldAngle = Math.atan2(ny, nx);
+                    if (worldAngle < 0) worldAngle += Math.PI * 2;
+
+                    let localAngle = (worldAngle - containerRotationAngle) % (Math.PI * 2);
+                    if (localAngle < 0) localAngle += Math.PI * 2;
+
+                    // Requirement 2: Check if bounce occurred in Integrated Red Sector on shape line
+                    let targetStart = (targetArcCenterAngle - TARGET_ARC_SPAN / 2) % (Math.PI * 2);
+                    let targetEnd = (targetArcCenterAngle + TARGET_ARC_SPAN / 2) % (Math.PI * 2);
+                    if (targetStart < 0) targetStart += Math.PI * 2;
+                    if (targetEnd < 0) targetEnd += Math.PI * 2;
+
+                    let insideRedSector = false;
+                    if (targetStart < targetEnd) {
+                        insideRedSector = (localAngle >= targetStart && localAngle <= targetEnd);
+                    } else {
+                        insideRedSector = (localAngle >= targetStart || localAngle <= targetEnd);
+                    }
+
+                    if (insideRedSector) {
+                        bounceCount++;
+                        createParticles(ball.x, ball.y, 14, '#f43f5e');
+
+                        stageGuideText.textContent = `Stage 2: Rotate shape to catch bouncing ball in the integrated red sector (${bounceCount}/${requiredBounces})`;
+
+                        if (bounceCount >= requiredBounces) {
+                            stage = 3;
+                            showSuccess();
+                        }
+                    } else {
+                        if (bounceCount > 0) bounceCount--;
+                        createParticles(ball.x, ball.y, 6, '#38bdf8');
+                        stageGuideText.textContent = `Stage 2: Rotate shape to catch bouncing ball in the integrated red sector (${bounceCount}/${requiredBounces})`;
+                    }
+                } else if (distFromCenter <= 2) {
+                    // Turnaround at exact center
+                    const normVx = ball.vx / (Math.hypot(ball.vx, ball.vy) || 1);
+                    const normVy = ball.vy / (Math.hypot(ball.vx, ball.vy) || 1);
+
+                    ball.vx = -normVx * ball.speed;
+                    ball.vy = -normVy * ball.speed;
+                }
+            }
+
+            function showSuccess() {
+                stageHud.classList.add('hidden');
+                controlsBadge.classList.add('hidden');
+                successOverlay.classList.remove('opacity-0', 'pointer-events-none');
+                createConfetti();
+            }
+
+            function showFailure(title, subtitle) {
+                if (stage1TimerInterval) clearInterval(stage1TimerInterval);
+                stage = 4;
+                stageHud.classList.add('hidden');
+                controlsBadge.classList.add('hidden');
+
+                failureTitle.textContent = title;
+                failureSubtitle.textContent = subtitle;
+                failureOverlay.classList.remove('opacity-0', 'pointer-events-none');
+            }
+
+            // Particles
+            function createParticles(x, y, count, color) {
+                for (let i = 0; i < count; i++) {
+                    particles.push({
+                        x: x, y: y,
+                        vx: (Math.random() - 0.5) * 6,
+                        vy: (Math.random() - 0.5) * 6,
+                        life: 1.0,
+                        color: color || '#38bdf8'
+                    });
+                }
+            }
+
+            function createConfetti() {
+                for (let i = 0; i < 90; i++) {
+                    particles.push({
+                        x: canvasCenter.x, y: canvasCenter.y,
+                        vx: (Math.random() - 0.5) * 16,
+                        vy: (Math.random() - 0.5) * 16,
+                        life: 2.8,
+                        color: ['#fbbf24', '#38bdf8', '#f43f5e', '#34d399'][Math.floor(Math.random() * 4)]
+                    });
+                }
+            }
+
+            function updateParticles() {
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    let p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.life -= 0.035;
+                    if (p.life <= 0) particles.splice(i, 1);
+                }
+            }
+
+            function drawParticles() {
+                particles.forEach(p => {
+                    ctx.save();
+                    ctx.globalAlpha = p.life;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.restore();
+                });
+            }
+
+            // Main Render Loop
+            function gameLoop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                handleKeyboardControls();
+
+                if (stage === 1) {
+                    drawTargetShapeOutline();
+                    drawUserDrawingTrace();
+                } else if (stage === 2) {
+                    updateStage2Physics();
+                    drawRotatingShapeWithIntegratedRedSector();
+                    drawBouncingBall();
+                }
+
+                updateParticles();
+                drawParticles();
+
+                requestAnimationFrame(gameLoop);
+            }
+
+            // Draw Target Shape outline in Stage 1
+            function drawTargetShapeOutline() {
+                ctx.save();
+                ctx.translate(canvasCenter.x, canvasCenter.y);
+
+                ctx.beginPath();
+                drawShapePath(ctx, 0);
+
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([8, 6]);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            // Draw User's active drawing line in Stage 1
+            function drawUserDrawingTrace() {
+                if (userPoints.length < 2) return;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(userPoints[0].x, userPoints[0].y);
+
+                for (let i = 1; i < userPoints.length; i++) {
+                    ctx.lineTo(userPoints[i].x, userPoints[i].y);
+                }
+
+                ctx.strokeStyle = humanityScore > 35 ? '#34d399' : '#f59e0b';
+                ctx.lineWidth = 3.5;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = humanityScore > 35 ? '#34d399' : '#f59e0b';
+                ctx.shadowBlur = 10;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Requirement 2: Stage 2 - Shape with Integrated Red Sector directly on perimeter
+            function drawRotatingShapeWithIntegratedRedSector() {
+                ctx.save();
+                ctx.translate(canvasCenter.x, canvasCenter.y);
+                ctx.rotate(containerRotationAngle);
+
+                // 1. Base Shape Outline (Non-red sector)
+                ctx.beginPath();
+                drawShapePath(ctx, 0);
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.45)';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+
+                // Center Point Marker
+                ctx.beginPath();
+                ctx.arc(0, 0, 5, 0, Math.PI * 2);
+                ctx.fillStyle = '#38bdf8';
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 8;
+                ctx.fill();
+
+                // 2. Integrated Red Target Sector highlighted directly ON the shape perimeter
+                const startAngle = targetArcCenterAngle - TARGET_ARC_SPAN / 2;
+                const endAngle = targetArcCenterAngle + TARGET_ARC_SPAN / 2;
+
+                ctx.beginPath();
+                drawShapeArcSegment(ctx, startAngle, endAngle);
+                ctx.strokeStyle = '#f43f5e';
+                ctx.lineWidth = 10;
+                ctx.shadowColor = '#f43f5e';
+                ctx.shadowBlur = 16;
+                ctx.stroke();
+
+                // End Caps for Red Sector
+                const rStart = getShapeRadiusAtAngle(startAngle);
+                const rEnd = getShapeRadiusAtAngle(endAngle);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(Math.cos(startAngle) * rStart, Math.sin(startAngle) * rStart, 4.5, 0, Math.PI * 2);
+                ctx.arc(Math.cos(endAngle) * rEnd, Math.sin(endAngle) * rEnd, 4.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+            }
+
+            // Helper path generators
+            function drawShapePath(context, angleOffset) {
+                const steps = 120;
+                for (let i = 0; i <= steps; i++) {
+                    const a = (i / steps) * Math.PI * 2 + angleOffset;
+                    const r = getShapeRadiusAtAngle(a);
+                    const x = Math.cos(a) * r;
+                    const y = Math.sin(a) * r;
+                    if (i === 0) context.moveTo(x, y);
+                    else context.lineTo(x, y);
+                }
+            }
+
+            function drawShapeArcSegment(context, startAngle, endAngle) {
+                const steps = 40;
+                let span = endAngle - startAngle;
+                if (span < 0) span += Math.PI * 2;
+
+                for (let i = 0; i <= steps; i++) {
+                    const a = startAngle + (i / steps) * span;
+                    const r = getShapeRadiusAtAngle(a);
+                    const x = Math.cos(a) * r;
+                    const y = Math.sin(a) * r;
+                    if (i === 0) context.moveTo(x, y);
+                    else context.lineTo(x, y);
+                }
+            }
+
+            function drawBouncingBall() {
+                ctx.save();
+
+                // Path guide line to center
+                ctx.beginPath();
+                ctx.moveTo(canvasCenter.x, canvasCenter.y);
+                ctx.lineTo(ball.x, ball.y);
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.25)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.stroke();
+
+                // Ball
+                ctx.beginPath();
+                ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+
+                const grad = ctx.createRadialGradient(
+                    ball.x - 3, ball.y - 3, 2,
+                    ball.x, ball.y, ball.radius
+                );
+                grad.addColorStop(0, '#ffffff');
+                grad.addColorStop(0.5, '#38bdf8');
+                grad.addColorStop(1, '#0284c7');
+
+                ctx.fillStyle = grad;
+                ctx.shadowColor = '#38bdf8';
+                ctx.shadowBlur = 14;
+                ctx.fill();
+                ctx.restore();
+            }
+
+            window.onload = function() {
+                init();
+            };
+        })();
+    </script>
+</body>
+</html>
